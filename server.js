@@ -4,6 +4,7 @@ const nunjucks = require("nunjucks");
 const app = express();
 const PORT = process.env.SERVER_PORT || 3000;
 const user = [];
+
 // NOTE: 템플릿 엔진을 사용하겠다는 의미
 app.set("view engine", "html");
 
@@ -13,14 +14,13 @@ app.use(express.static("public"));
 // NOTE: express에 내장된 querystring 모듈을 사용해서 body를 파싱하겠다는 의미
 app.use(express.urlencoded({ extended: false }));
 
-// NOTE: nunjucks가 사용할 express 객체
+// NOTE: nunjucks가 사용할 express 객체 지정
 nunjucks.configure("views", {
   express: app,
 });
 
 app.get("/", (req, res) => {
   const user = app.get("login");
-  console.log(user);
   if (user !== undefined) {
     const nickname = user["nickname"];
     res.render("index", { nickname: `${nickname}님 안녕하세요` });
@@ -53,7 +53,6 @@ app.get("/login", (req, res) => {
 const isIdPwCorrect = (id, pw) => {
   for (let i = 0; i < user.length; i++) {
     if (user[i]["id"] === id && user[i]["pw"] === pw) {
-      console.log("ok");
       app.set("login", { id: user[i]["id"], pw: user[i]["pw"], nickname: user[i]["nickname"] });
       return true;
     }
@@ -66,8 +65,7 @@ app.post("/login", (req, res) => {
   if (isIdPwCorrect(id, pw)) {
     res.redirect("/");
   } else {
-    console.log("no");
-    res.redirect("/login");
+    res.render("login");
   }
 });
 
